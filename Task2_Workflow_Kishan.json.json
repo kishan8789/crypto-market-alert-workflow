@@ -1,0 +1,158 @@
+{
+  "name": "Crypto Market Daily Alert",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "id": "41d1f1f2-ec46-411e-a8c2-0c165100c134",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [
+        -800,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=5&page=1",
+        "options": {}
+      },
+      "id": "8e8abe1b-0eb1-48d8-8380-1c550824080e",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  return {\n    json: {\n      name: item.json.name,\n      symbol: item.json.symbol,\n      price: item.json.current_price,\n      change: item.json.price_change_percentage_24h\n    }\n  };\n});"
+      },
+      "id": "b44c7f07-931a-4ab1-9eb9-a34545b9ff08",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -400,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{$json.change}}",
+              "operation": "larger",
+              "value2": 5
+            }
+          ]
+        }
+      },
+      "id": "0eb832a9-4502-4091-99e9-ba0f3547a12e",
+      "name": "IF",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "8900041986",
+        "text": "🚀 Crypto Alert  Coin: {{$json.name}} Symbol: {{$json.symbol}} Price: ${{$json.price}} 24h Change: {{$json.change}}%",
+        "additionalFields": {}
+      },
+      "id": "0bd9ca97-070f-4317-b5c4-50740c562a33",
+      "name": "Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        304
+      ],
+      "webhookId": "1178a314-5fbf-450c-b7b3-bfcca4fedc05",
+      "credentials": {
+        "telegramApi": {
+          "id": "RJddzZxnz9D5wbdC",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "IF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "d8d3e107-ddba-4549-ad04-c644a9cd65c8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d153fba07049f9f7a68f38130ea5fc25e69b3daef0b1eaa8586fa073c7e59b8e"
+  },
+  "id": "jI2doMRRtHNDrkEc",
+  "tags": []
+}
